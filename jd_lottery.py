@@ -31,14 +31,14 @@ def beep():
 
 class Settings:
     """
-    Read settings from jd_lottery.ini .
+    Read settings from config.ini .
     """
     def __init__(self):
         self._read_ini()
 
     def _read_ini(self):
         self.config=configparser.ConfigParser(delimiters=('='), allow_no_value=True)
-        with codecs.open('jd_lottery.ini', "r", "utf-8") as f:
+        with codecs.open('config.ini', "r", "utf-8") as f:
             first = f.read(1)
             if first != "\ufeff":
                 # not a BOM, rewind
@@ -185,14 +185,14 @@ class Product:
 
 class Result:
     """
-    Read/save goods info from/to jd_lottery_result.txt.
+    Read/save goods info from/to result.txt.
     """
     def __init__(self):
         self._read_ini()
 
     def _read_ini(self):
         self.config = configparser.RawConfigParser()
-        self.config.read('jd_lottery_result.txt')
+        self.config.read('result.txt')
         
     def get_url(self, code):
         try:
@@ -203,7 +203,7 @@ class Result:
             
     def set_url(self, code, _str):
         string = str(_str)
-        with open('jd_lottery_result.txt', 'w') as configfile:
+        with open('result.txt', 'w') as configfile:
             if not self.config.has_section(code): self.config.add_section(code)
             self.config.set(code, 'url', string)
             self.config.write(configfile)
@@ -217,7 +217,7 @@ class Result:
 
     def set_data(self, code, _str):
         string = str(_str)
-        with open('jd_lottery_result.txt', 'w') as configfile:
+        with open('result.txt', 'w') as configfile:
             if not self.config.has_section(code): self.config.add_section(code)
             self.config.set(code, 'res', string)
             self.config.write(configfile)
@@ -271,8 +271,9 @@ def Run():
     while(True):
         #Format output
         with codecs.open('output.html', 'w', 'utf-8') as html:
-            html.write(u'<!DOCTYPE html>\n<html>\n    <head>\n        <meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>\n        <meta name="format-detection" content="telephone=no" />\n        <meta http-equiv="refresh" content="10">\n        <title>京东抽奖测水</title>\n    </head>\n    <body>\n')
-            
+            html.write(u'<!DOCTYPE html>\n<html>\n    <head>\n        <meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>\n        <meta name="format-detection" content="telephone=no" />\n        <meta http-equiv="refresh" content="10">\n        <title>京东抽奖测水</title>\n        <link href="src/bootstrap.min.css" rel="stylesheet" type="text/css" />\n        <script type="text/javascript" src="src/jquery-3.1.0.min.js"></script>\n        <script type="text/javascript" src="src/data.js"></script>\n        <script type="text/javascript" src="src/angular.min.js"></script>\n        <script type="text/javascript" src="src/init.js"></script>\n    </head>\n    <body>\n        <div ng-app="data" class="container">\n            <div ng-controller="list" class="table-responsive">\n                <div ng-repeat="(code, res) in result">\n                <table class="table table-striped">\n                    <caption>用户列表:  {{code}}</caption>\n                    <tr>\n                        <th>优惠券名称</th>\n                        <th>用户</th>\n                        <th>时间</th>\n                    </tr>\n                    <tr ng-repeat="item in res track by $index">\n                        <td>{{item.prizeName}}</td>\n                        <td>{{item.userPin}}</td>\n                        <td>{{item.winDate}}</td>\n                     </tr>\n                </table>\n                </div>\n            </div>\n        </div>')
+        with codecs.open('src/data.js', 'w', 'utf-8') as data:
+            data.write('var data = {};')
         #Endless querying with sleep interval, until user quit the program.
         count+=1
         #Sum up all changes in a single query and print at the end of the prompt.
@@ -313,7 +314,6 @@ def Run():
 
             if news:
                 print("检测到变更！！！")
-                data = json.loads(json.dumps(curr_data))
                 if SEND_EMAIL:
                     #Try 10 times if unabled to send email.
                     for i in range(10):
@@ -330,6 +330,10 @@ def Run():
 
             else:
                 print("无变更。")
+                
+            with codecs.open('src/data.js', 'a', 'utf-8') as data:
+                data.write('\ndata["' + code_i + '"] = ' + curr_data + ';')
+                
             print(message)
 
         print("##############################################################")
