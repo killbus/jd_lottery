@@ -21,6 +21,9 @@ import sys,os
 import webbrowser
 import codecs
 
+class TimeoutExpired(Exception):
+    pass
+
 try:
     import msvcrt
     
@@ -48,17 +51,22 @@ try:
         else:
             return default
 except:
-    from select import select
+    import signal
+    def alarm_handler(signum, frame):
+        raise TimeoutExpired
 
     def readInput(caption, default, timeout=10):
-        sys.stdout.write('%s(%d秒自动跳过):' % (caption,timeout))
-        rlist, _, _ = select([sys.stdin], [], [], timeout)
-        if rlist:
-            s = sys.stdin.readline()
-            return s
-        else:
-            return default
+        # set signal handler
+        signal.signal(signal.SIGALRM, alarm_handler)
+        signal.alarm(timeout) # produce SIGALRM in `timeout` seconds
 
+        try:
+            return input('%s(%d秒自动跳过):' % (caption,timeout))
+        except:
+            print(default)
+            return default
+        finally:
+            signal.alarm(0) # cancel alarm
 
 def beep():
     """play an alarm."""
@@ -468,7 +476,7 @@ def Run():
     CODE=re.findall(r"(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})", MONITORING_CODE)
     CODE=list(set(CODE))
     while(True):
-        clean=readInput('\n是否清理抽奖记录（Y/N）：', 'N').upper()
+        clean=readInput('\n是否清理抽奖记录（Y/N）', 'N').upper()
         if clean in ['Y', 'N']:
             clean='w' if clean == 'Y' else 'a'
             break
