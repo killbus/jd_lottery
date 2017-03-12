@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+        <meta name="format-detection" content="telephone=no" />
+        <meta http-equiv="refresh" content="10">
+        <title>京东抽奖测水</title>
+        <link href="src/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="src/jquery-3.1.0.min.js"></script>
+        <script type="text/javascript" src="src/data.js"></script>
+        <script type="text/javascript" src="src/angular.min.js"></script>
+        <script type="text/javascript" src="src/init.js"></script>
+    </head>
+    <body>
+        <div ng-app="data" class="container">
+            <div ng-controller="list" class="table-responsive">
+                <div ng-repeat="(code, res) in result">
+                <table class="table table-striped">
+                    <caption>抽奖代码:  {{code}}</caption>
+                    <tr>
+                        <th>优惠券名称</th>
+                        <th>用户</th>
+                        <th>时间</th>
+                    </tr>
+                    <tr ng-repeat="item in res track by $index">
+                        <td>{{item.prizeName}}</td>
+                        <td>{{item.userPin}}</td>
+                        <td>{{item.winDate}}</td>
+                     </tr>
+                </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

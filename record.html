@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+        <meta name="format-detection" content="telephone=no" />
+        <meta http-equiv="refresh" content="60">
+        <title>京东抽奖记录</title>
+        <link href="src/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="src/jquery-3.1.0.min.js"></script>
+        <script type="text/javascript" src="src/draw.js"></script>
+        <script type="text/javascript" src="src/angular.min.js"></script>
+        <script type="text/javascript" src="src/init.js"></script>
+    </head>
+    <body>
+        <div ng-app="draw" class="container">
+            <div ng-controller="list" class="table-responsive">
+                <div ng-repeat="(code, res) in result">
+                <table class="table table-striped animate-container">
+                    <caption>抽奖代码:  {{code}} <input type="search" ng-model="q" placeholder="查找结果..." aria-label="filter res" /></caption>
+                    <tr>
+                        <th style="width: 25%;">执行时间</th>
+                        <th style="width: 25%;">用户</th>
+                        <th style="width: 40%;">结果</th>
+                        <th>错误</th>
+                    </tr>
+                    <tr class="animate-repeat" ng-repeat="item in res | reverse | filter:q as results track by $index">
+                        <td>{{item.drawTime}}</td>
+                        <td>{{item.userPin}}</td>
+                        <td>{{item.promptMsg}}</td>
+                        <td>{{item.error}}</td>
+                     </tr>
+                     <tr class="animate-repeat" ng-if="res.length === 0">
+                        <td colspan="4"><strong>没有记录...</strong></td>
+                    </tr>
+                </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
