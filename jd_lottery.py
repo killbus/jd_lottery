@@ -288,7 +288,7 @@ class Product:
             'Accept-Language':'zh-CN,zh;q=0.8,en;q=0.6',
             'Referer':'http://www.jd.com/',
             'Connection':'keep-alive'}
-            req=s.get(self.url,headers=headers)
+            req=s.get(self.url,headers=headers,timeout=10)
             if req.status_code != requests.codes.ok:
                 raise Exception(req.status_code)
             self.page=req.text
@@ -345,7 +345,7 @@ class Result:
 def internet_on():
     """Check if computer is online. Return type: boolean."""
     try:
-        response=s.get("http://www.baidu.com",timeout=100)
+        response=s.get("http://www.baidu.com",timeout=10)
         return True
     except Exception as e:
         print(str(e))
@@ -384,7 +384,7 @@ def send_mail(sub,content,to_list=RECEIVER_EMAIL_ACCOUNTS):
 def get_webservertime(wintime):
     while True:
         try:
-            conn=httplib2.Http(timeout=30)
+            conn=httplib2.Http(timeout=10)
             resp, content=conn.request("http://ls-activity.jd.com", "GET")
             #r.getheaders() #获取所有的http头
             ts=resp['date'] #获取http头date部分
@@ -422,12 +422,11 @@ def get_page(user):
     user = user.replace('\\','/').split('/')
     user = user[1].split('.')
     user = user[0]
-    DRAW_URL="http://l-activity.jd.com/lottery/lottery_start.action?callback=&lotteryCode=%s&_=%d"%(CODE_PENDING, int(time.time()*1000))
-    print("抽奖链接："+DRAW_URL+"\n")
     if CODE_PENDING in OUT.keys() and 'user' in OUT[CODE_PENDING].keys() and user == OUT[CODE_PENDING]['user'] and time.strptime(OUT[CODE_PENDING]['date'], "%Y-%m-%d")[2] == time.strptime(SERVERDATE, "%Y-%m-%d")[2]:
         print('当天抽奖次数已用完...\n')
         return False
     
+    DRAW_URL="http://l-activity.jd.com/lottery/lottery_start.action?callback=&lotteryCode=%s&_=%d"%(CODE_PENDING, int(time.time()*1000))
     req=urllib.request.Request(DRAW_URL,headers=headers)
 
     for i in range(0,3,1):
@@ -466,7 +465,7 @@ def get_page(user):
 
 def Run():
 
-    global OUT, DREW
+    global OUT, DREW, DRAW_URL
     #dict 存储当天已用完抽奖次数的结果
     OUT = {}
     DREW = False
@@ -505,6 +504,8 @@ def Run():
             time.sleep(random.randint(100,200)/1000)
             #http://ls-activity.jd.com/lotteryApi/getWinnerList.action?lotteryCode=e70e381a-29a9-4361-ba47-bce3b2e72348&_=1472104982912&callback=jsonp8
             url_i = "http://ls-activity.jd.com/lotteryApi/getWinnerList.action?lotteryCode="+code_i+"&_=%d&callback="%(int(time.time()*1000))
+            DRAW_URL="http://l-activity.jd.com/lottery/lottery_start.action?callback=&lotteryCode=%s&_=%d"%(code_i, int(time.time()*1000))
+    
             print("++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
             product=Product(code_i)
@@ -549,7 +550,8 @@ def Run():
             ########################################################
 
             message = u"数据      ："+curr_data+"\n"+          \
-                      u"网址      ："+url_i+"\n"
+                      u"网址      ："+url_i+"\n"+              \
+                      u"抽奖      ："+DRAW_URL+"\n"
 
             if DREW:
                 print("\n检测到变更！！！")
