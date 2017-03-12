@@ -452,16 +452,6 @@ def get_page(user):
         except Exception as e:
             print(str(e))
         time.sleep(DRAW_TIME)
-        continue
-        if url_params.hostname == 'a.jd.com':
-            print(datetime.datetime.now().strftime('%H:%M:%S')+' / '+user+': '+response.read())
-        elif url_params.hostname == 'coupon.jd.com':
-            cer=re.compile('<h1 class="ctxt02"><s class="icon-redbag"></s>(.*)</h1>',flags=0)
-            strlist=cer.findall(response.read().decode('utf-8', 'ignore'))
-            if not strlist:
-                print(datetime.datetime.now().strftime('%H:%M:%S')+' / '+user+': '+'未知错误')
-            else:
-                print(datetime.datetime.now().strftime('%H:%M:%S')+' / '+user+': '+strlist[0])
 
 def Run():
 
