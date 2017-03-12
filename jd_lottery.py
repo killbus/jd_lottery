@@ -4,7 +4,7 @@
 import requests
 
 import re
-import time,datetime,msvcrt
+import time,datetime
 import httplib2,urllib.request,http.cookiejar
 from multiprocessing.dummy import Pool as ThreadPool
 
@@ -21,6 +21,45 @@ import sys,os
 import webbrowser
 import codecs
 
+try:
+    import msvcrt
+    
+    def readInput(caption, default, timeout=10):
+        start_time = time.time()
+        sys.stdout.write('%s(%d秒自动跳过):' % (caption,timeout))
+        sys.stdout.flush()
+        input = ''
+        while True:
+            ini=msvcrt.kbhit()
+            try:
+                if ini:
+                    chr = msvcrt.getche()
+                    if ord(chr) == 13:  # enter_key
+                        break
+                    elif ord(chr) >= 32:
+                        input += chr.decode()
+            except Exception as e:
+                pass
+            if len(input) == 0 and time.time() - start_time > timeout:
+                break
+        print ('')  # needed to move to next line
+        if len(input) > 0:
+            return input+''
+        else:
+            return default
+except:
+    from select import select
+
+    def readInput(caption, default, timeout=10):
+        sys.stdout.write('%s(%d秒自动跳过):' % (caption,timeout))
+        rlist, _, _ = select([sys.stdin], [], [], timeout)
+        if rlist:
+            s = sys.stdin.readline()
+            return s
+        else:
+            return default
+
+
 def beep():
     """play an alarm."""
     print("\a")
@@ -31,29 +70,6 @@ def beep():
     Dur = 200 # Set Duration To 1000 ms == 1 second
     winsound.Beep(Freq,Dur)
     """
-def readInput(caption, default, timeout=10):
-    start_time = time.time()
-    sys.stdout.write('%s(%d秒自动跳过):' % (caption,timeout))
-    sys.stdout.flush()
-    input = ''
-    while True:
-        ini=msvcrt.kbhit()
-        try:
-            if ini:
-                chr = msvcrt.getche()
-                if ord(chr) == 13:  # enter_key
-                    break
-                elif ord(chr) >= 32:
-                    input += chr.decode()
-        except Exception as e:
-            pass
-        if len(input) == 0 and time.time() - start_time > timeout:
-            break
-    print ('')  # needed to move to next line
-    if len(input) > 0:
-        return input+''
-    else:
-        return default
  
 class Settings:
     """
