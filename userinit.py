@@ -140,7 +140,7 @@ class JDlogin(object):
                     self.browser.save_screenshot('logs/screenshot_failed.png')
                     error_msg = self.browser.find_element_by_xpath('//div[@class="msg-error"]').text
                     print('ERROR: '+error_msg)
-                    if '密码错误' in error_msg:
+                    if '密码错误' in error_msg or '账户名不存在' in error_msg:
                         break
                     time.sleep(1)
                 else:
