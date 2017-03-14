@@ -422,8 +422,8 @@ def get_page(user):
     user = user.replace('\\','/').split('/')
     user = user[1].split('.')
     user = user[0]
-    if CODE_PENDING in OUT.keys() and 'user' in OUT[CODE_PENDING].keys() and user == OUT[CODE_PENDING]['user'] and time.strptime(OUT[CODE_PENDING]['date'], "%Y-%m-%d")[2] == time.strptime(SERVERDATE, "%Y-%m-%d")[2]:
-        print('当天抽奖次数已用完...\n')
+    if CODE_PENDING in OUT.keys() and user in OUT[CODE_PENDING].keys() and time.strptime(OUT[CODE_PENDING][user], "%Y-%m-%d")[2] == time.strptime(SERVERDATE, "%Y-%m-%d")[2]:
+        print(user+'：当天抽奖次数已用完...')
         return False
     
     DRAW_URL="http://l-activity.jd.com/lottery/lottery_start.action?callback=&lotteryCode=%s&_=%d"%(CODE_PENDING, int(time.time()*1000))
@@ -440,15 +440,15 @@ def get_page(user):
             if "data" in page.keys():
                 page = page['data']
                 if page['chances'] == 0:
-                    OUT[CODE_PENDING] = {}
-                    OUT[CODE_PENDING]['user'] = user
-                    OUT[CODE_PENDING]['date'] = SERVERDATE
+                    OUT[CODE_PENDING][user] = SERVERDATE
                 DREW = True
             page['userPin'] = page['userPin'] if 'userPin' in page and page['userPin'] else user
             page['drawTime'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             page = json.dumps(page)
             with codecs.open('src/draw.js', 'a', 'utf-8') as draw:
                 draw.write('draw["'+CODE_PENDING+'"].push('+page+');\n')
+            if CODE_PENDING in OUT.keys() and user in OUT[CODE_PENDING].keys() and time.strptime(OUT[CODE_PENDING][user], "%Y-%m-%d")[2] == time.strptime(SERVERDATE, "%Y-%m-%d")[2]:
+                break
         except Exception as e:
             print(str(e))
         time.sleep(DRAW_TIME)
@@ -464,6 +464,9 @@ def Run():
     #JD goods id.
     CODE=re.findall(r"(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})", MONITORING_CODE)
     CODE=list(set(CODE))
+    for c in CODE:
+        OUT[c] = {}
+
     while(True):
         clean=readInput('\n是否清理抽奖记录（Y/N）', 'N').upper()
         if clean in ['Y', 'N']:
@@ -519,8 +522,8 @@ def Run():
                 result.set_data(code_i, curr_data)
                 keyword=re.search(code_i+"\|"+".*", MONITORING_CODE)
                 keyword = '' if keyword is None else keyword
-                if keyword:
-                    keyword=keyword.group(0).split("|")[1]
+                if keyword is not None:
+                    keyword=keyword.group(0).split("|")[1] if keyword !='' else ''
                     match=re.search("{\"prizeName\"\s*:\s*\"[^\"]*"+keyword+"[^\"]*\"[^}]*}", curr_data)
                     if match:
                         match=json.loads(match.group())
@@ -561,7 +564,7 @@ def Run():
                     webbrowser.open(MUSIC_PATH)
 
             else:
-                print("无变更。\n")
+                print("\n无变更。\n")
                 
             with codecs.open('src/data.js', 'a', 'utf-8') as data:
                 data.write('\ndata["' + code_i + '"] = ' + curr_data + ';')
