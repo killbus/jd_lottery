@@ -518,6 +518,7 @@ def Run():
                 news=True
                 result.set_data(code_i, curr_data)
                 keyword=re.search(code_i+"\|"+".*", MONITORING_CODE)
+                keyword = '' if keyword is None else keyword
                 if keyword:
                     keyword=keyword.group(0).split("|")[1]
                     match=re.search("{\"prizeName\"\s*:\s*\"[^\"]*"+keyword+"[^\"]*\"[^}]*}", curr_data)
