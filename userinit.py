@@ -138,10 +138,15 @@ class JDlogin(object):
                 if home_page.status_code != 200 :
                     print('LOGIN FAILED! '+str(home_page.status_code)+' found, cookies is invalid.')
                     self.browser.save_screenshot('logs/screenshot_failed.png')
-                    error_msg = self.browser.find_element_by_xpath('//div[@class="msg-error"]').text
-                    print('ERROR: '+error_msg)
-                    if '密码错误' in error_msg or '账户名不存在' in error_msg:
+                    if 'dangerousVerify' in self.browser.current_url:
+                        error_msg = self.browser.find_element_by_xpath('//div[@class="tip-box"]').text
+                        print('ERROR: '+error_msg)
                         break
+                    else:
+                        error_msg = self.browser.find_element_by_xpath('//div[@class="msg-error"]').text
+                        print('ERROR: '+error_msg)
+                        if '密码错误' in error_msg or '账户名不存在' in error_msg:
+                            break
                     time.sleep(1)
                 else:
                     print('LOGIN SUCCESS!')
