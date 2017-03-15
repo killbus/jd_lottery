@@ -341,7 +341,7 @@ class Result:
             if not self.config.has_section(code): self.config.add_section(code)
             self.config.set(code, 'res', string)
             self.config.write(configfile)
-            
+
 def internet_on():
     """Check if computer is online. Return type: boolean."""
     try:
@@ -474,14 +474,30 @@ def Run():
         else:
             print('输入不正确！清理（Y）/保留（N）：')
 
-    with codecs.open('src/draw.js', 'r+', 'utf-8') as draw:
-        if clean == 'Y' or draw.readline().rstrip() != 'var draw={};':
-            draw.truncate(0)
-            draw.seek(0)
-            draw.write('var draw={};\n')
-            for c in CODE:
-                draw.write('draw["'+c+'"] = [];\n')
-            
+    with codecs.open('src/lottery_codes.js', 'r+', 'utf-8') as code:
+        if clean == 'Y' or code.readline().rstrip() != 'var draw={};':
+            code.truncate(0)
+            code.seek(0)
+            code.write('var draw={};\n')
+            code.write('var codes = new Array('+', '.join("'"+str(c)+"'" for c in CODE)+');\n')
+            code.write('for (i in codes) {\n    draw[codes[i]] = [];\n}\n')
+        else:
+            codes_def_injs = []
+            for l in code:
+                codes_str = re.match("var\ *codes\ *=\ new\ *Array\((.*)\);", l)
+                if codes_str is not None:
+                    codes_def_injs = [i.replace("'", '').strip() for i in codes_str.group(1).split(',')]
+                    break
+            #codes_def_missing = [i for i in CODE if i not in codes_def_injs]
+            code.truncate(0)
+            code.seek(0)
+            code.write('var draw={};\n')
+            code.write('var codes = new Array('+', '.join("'"+str(c)+"'" for c in list(set(CODE+codes_def_injs)))+');\n')
+            code.write('for (i in codes) {\n    draw[codes[i]] = [];\n}\n')
+    if clean == 'Y':
+        with codecs.open('src/draw.js', 'w', 'utf-8') as draw:
+            pass
+             
     while(True):
         #Format output
         #with codecs.open('output.html', 'w', 'utf-8') as html:
