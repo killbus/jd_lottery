@@ -470,15 +470,17 @@ def Run():
     while(True):
         clean=readInput('\n是否清理抽奖记录（Y/N）', 'N').upper()
         if clean in ['Y', 'N']:
-            clean='w' if clean == 'Y' else 'a'
             break
         else:
             print('输入不正确！清理（Y）/保留（N）：')
-            
-    with codecs.open('src/draw.js', clean, 'utf-8') as draw:
-        draw.write('var draw={};\n')
-        for c in CODE:
-            draw.write('draw["'+c+'"] = [];\n')
+
+    with codecs.open('src/draw.js', 'r+', 'utf-8') as draw:
+        if clean == 'Y' or draw.readline().rstrip() != 'var draw={};':
+            draw.truncate(0)
+            draw.seek(0)
+            draw.write('var draw={};\n')
+            for c in CODE:
+                draw.write('draw["'+c+'"] = [];\n')
             
     while(True):
         #Format output
