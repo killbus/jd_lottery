@@ -39,7 +39,25 @@ $(function() {
     var navObj = $('body nav:first-child');
     navObj.next().css({'margin-top': navObj.height()});
     $('body > nav').append('<div class="container-fluid">');
-    $('body > nav > div.container-fluid').append('<div class="navbar-header"> <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse-1" aria-expanded="true"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> <a href="javascript:void(0);" onclick="window.location.reload();" class="navbar-brand">刷新</a> </div>').append('<div class="collapse navbar-collapse" id="bs-navbar-collapse-1"><ul class="nav navbar-nav"><li><a href="'+ (pathname.indexOf('/output.html') >= 0 ? 'record.html">抽奖记录' : 'output.html">测水记录') + '</a></li></ul></div>');
+    $('body > nav > div.container-fluid').append('<div class="navbar-header"> <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse-1" aria-expanded="true"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> <a href="javascript:void(0);" onclick="window.location.reload();" class="navbar-brand">刷新</a><a id="refresh" class="navbar-brand" style="font-size:14px; padding-left:0;" href="javascript:void(0);">（10秒后刷新）</a> </div>').append('<div class="collapse navbar-collapse" id="bs-navbar-collapse-1"><ul class="nav navbar-nav"><li><a href="'+ (pathname.indexOf('/output.html') >= 0 ? 'record.html">抽奖记录' : 'output.html">测水记录') + '</a></li></ul></div>');
+    
+    var timer = setTimeout(refresh, 10000);
+    $("#refresh").click(function(e){
+        e.preventDefault();
+        if (timer) {
+            clearTimeout(timer);
+            $(this).text('（已关闭自动刷新）');
+            timer = null;
+        } else {
+            $(this).text('（10秒后刷新）');
+            timer = setTimeout(refresh, 10000);
+        }
+    });
+
+    function refresh() {
+        timer = null;
+        document.location.reload(true);
+    }
 
 })
 
