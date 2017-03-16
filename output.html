@@ -17,17 +17,19 @@
             <div ng-controller="list" class="table-responsive">
                 <div ng-repeat="(code, res) in result">
                 <table class="table table-striped">
-                    <caption>抽奖代码:  {{code}}</caption>
-                    <tr>
-                        <th>优惠券名称</th>
-                        <th>用户</th>
-                        <th>时间</th>
-                    </tr>
-                    <tr ng-repeat="item in res track by $index">
-                        <td>{{item.prizeName}}</td>
-                        <td>{{item.userPin}}</td>
-                        <td>{{item.winDate}}</td>
-                     </tr>
+                    <caption id="{{code}}" data-toggle="collapse" data-target="#body-{{code}}" style="cursor:pointer;">抽奖代码：{{code}}</caption>
+                    <tbody id="body-{{code}}" class="collapse in">
+                        <tr>
+                            <th>奖品名称</th>
+                            <th>用户</th>
+                            <th>时间</th>
+                        </tr>
+                        <tr ng-repeat="item in res track by $index">
+                            <td>{{item.prizeName}}</td>
+                            <td>{{item.userPin}}</td>
+                            <td>{{item.winDate}}</td>
+                         </tr>
+                    </tbody>
                 </table>
                 </div>
             </div>

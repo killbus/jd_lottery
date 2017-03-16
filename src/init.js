@@ -7,8 +7,27 @@ if (typeof(data) != "undefined") {
         result[k] = v['data'];
     });
     var app = angular.module("data", []);
-    app.controller("list", function ($scope, $http) {
+    app.controller("list", function ($scope, $http, $location, $anchorScroll, $timeout) {
         $scope.result = result;
+        $scope.gotoScroll = function(id) {
+          // set the location.hash to the id of
+          // the element you wish to scroll to.
+        $location.hash(id);
+
+          // call $anchorScroll()
+                    console.log($anchorScroll.yOffset);
+        $anchorScroll();
+        };
+        $timeout(function() {
+            var hash = window.location.hash;
+            if (hash) {
+                var id = window.location.hash.replace(/^#\//g, '');
+                if ($('#'+id).length > 0) {
+                    $anchorScroll.yOffset = $('body').offset().top;
+                    $scope.gotoScroll(id);
+                }
+            }
+        }, 0);
         //$scope.items = data["e70e381a-29a9-4361-ba47-bce3b2e72348"]["data"];
     });
 } else if (typeof(draw) != "undefined") {

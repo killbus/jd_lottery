@@ -17,7 +17,7 @@
             <div ng-controller="list" class="table-responsive">
                 <div ng-repeat="(code, res) in result">
                 <table class="table table-striped animate-container">
-                    <caption>抽奖代码:  {{code}} <input type="search" ng-model="q" placeholder="查找结果..." aria-label="filter res" /></caption>
+                    <caption>抽奖代码：<a href="output.html#{{code}}" target="_blank">{{code}}</a> <input type="search" ng-model="q" placeholder="查找结果..." aria-label="filter res" /></caption>
                     <tr>
                         <th style="width: 25%;">执行时间</th>
                         <th style="width: 25%;">用户</th>
