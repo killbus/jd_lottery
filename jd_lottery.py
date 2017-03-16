@@ -423,7 +423,7 @@ def get_page(user):
     user = user[1].split('.')
     user = user[0]
     if CODE_PENDING in OUT.keys() and user in OUT[CODE_PENDING].keys() and time.strptime(OUT[CODE_PENDING][user], "%Y-%m-%d")[2] == time.strptime(SERVERDATE, "%Y-%m-%d")[2]:
-        print(user+'：当天抽奖次数已用完...')
+        print(user+'：当天抽奖次数已用完或用户未登录...')
         return False
     
     DRAW_URL="http://l-activity.jd.com/lottery/lottery_start.action?callback=&lotteryCode=%s&_=%d"%(CODE_PENDING, int(time.time()*1000))
@@ -442,6 +442,9 @@ def get_page(user):
                 if page['chances'] == 0:
                     OUT[CODE_PENDING][user] = SERVERDATE
                 DREW = True
+            elif 'error' in page.keys():
+                OUT[CODE_PENDING][user] = SERVERDATE
+            
             page['userPin'] = page['userPin'] if 'userPin' in page and page['userPin'] else user
             page['drawTime'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             page = json.dumps(page)
