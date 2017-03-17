@@ -6,7 +6,15 @@ var target = pathname.indexOf('/output.html') >= 0 ? 'output' : pathname.indexOf
 if (target == 'output') {
     var app = angular.module("data", []);
     app.controller("list", function ($scope, $http, $location, $anchorScroll, $timeout) {
-        loadScript('src/data.js?ver='+Math.random().toString(16), dataInit, {'elem': document.getElementById('init'), 'po': 'before'});
+        loadScript('src/data.js?ver='+Math.random().toString(16), dataInit, {'elem': document.getElementById('init'), 'po': 'before'});    
+        $scope.gotoScroll = function(id) {
+            // set the location.hash to the id of
+            // the element you wish to scroll to.
+            $location.hash(id);
+
+            // call $anchorScroll()
+            $anchorScroll();
+        };
         function dataInit() {
             $timeout(function() {
                 if (typeof(data) != "undefined") {
@@ -16,26 +24,18 @@ if (target == 'output') {
                         result[k] = v['data'];
                     });
                     $scope.result = result;
-                    $scope.gotoScroll = function(id) {
-                        // set the location.hash to the id of
-                        // the element you wish to scroll to.
-                        $location.hash(id);
-
-                        // call $anchorScroll()
-                        $anchorScroll();
-                    };
+                    $timeout(hashLocator, 0);
                 }
             }, 0);
         }
-
-        $timeout(function() {
-            var hash = window.location.hash;
-            var id = window.location.hash.replace(/^#\//g, '');
-            if (id && $('#'+id).length > 0) {
-                $anchorScroll.yOffset = $('body').offset().top;
-                $scope.gotoScroll(id);
-            }
-        }, 0);
+        function hashLocator() {
+                var hash = window.location.hash;
+                var id = window.location.hash.replace(/^#\//g, '');
+                if (id && $('#'+id).length > 0) {
+                    $anchorScroll.yOffset = $('body').offset().top;
+                    $scope.gotoScroll(id);
+                }
+        }
         //$scope.items = data["e70e381a-29a9-4361-ba47-bce3b2e72348"]["data"];
     });
 } else if (target == 'record') {
