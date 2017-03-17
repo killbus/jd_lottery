@@ -20,12 +20,10 @@ if (typeof(data) != "undefined") {
         };
         $timeout(function() {
             var hash = window.location.hash;
-            if (hash) {
-                var id = window.location.hash.replace(/^#\//g, '');
-                if ($('#'+id).length > 0) {
-                    $anchorScroll.yOffset = $('body').offset().top;
-                    $scope.gotoScroll(id);
-                }
+            var id = window.location.hash.replace(/^#\//g, '');
+            if (id && $('#'+id).length > 0) {
+                $anchorScroll.yOffset = $('body').offset().top;
+                $scope.gotoScroll(id);
             }
         }, 0);
         //$scope.items = data["e70e381a-29a9-4361-ba47-bce3b2e72348"]["data"];
