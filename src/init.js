@@ -1,23 +1,33 @@
 loadCSS('src/style.css');
 
-if (typeof(data) != "undefined") {
-    console.log(data);
-    result = {};
-    $.each(data, function(k, v) {
-        result[k] = v['data'];
-    });
+var pathname = urlParser(window.location.href).pathname;
+var target = pathname.indexOf('/output.html') >= 0 ? 'output' : pathname.indexOf('/record.html') >= 0 ? 'record' : '';
+
+if (target == 'output') {
     var app = angular.module("data", []);
     app.controller("list", function ($scope, $http, $location, $anchorScroll, $timeout) {
-        $scope.result = result;
-        $scope.gotoScroll = function(id) {
-          // set the location.hash to the id of
-          // the element you wish to scroll to.
-        $location.hash(id);
+        loadScript('src/data.js?ver='+Math.random().toString(16), dataInit, {'elem': document.getElementById('init'), 'po': 'before'});
+        function dataInit() {
+            $timeout(function() {
+                if (typeof(data) != "undefined") {
+                    console.log(data);
+                    result = {};
+                    $.each(data, function(k, v) {
+                        result[k] = v['data'];
+                    });
+                    $scope.result = result;
+                    $scope.gotoScroll = function(id) {
+                        // set the location.hash to the id of
+                        // the element you wish to scroll to.
+                        $location.hash(id);
 
-          // call $anchorScroll()
-                    console.log($anchorScroll.yOffset);
-        $anchorScroll();
-        };
+                        // call $anchorScroll()
+                        $anchorScroll();
+                    };
+                }
+            }, 0);
+        }
+
         $timeout(function() {
             var hash = window.location.hash;
             var id = window.location.hash.replace(/^#\//g, '');
@@ -28,16 +38,24 @@ if (typeof(data) != "undefined") {
         }, 0);
         //$scope.items = data["e70e381a-29a9-4361-ba47-bce3b2e72348"]["data"];
     });
-} else if (typeof(draw) != "undefined") {
+} else if (target == 'record') {
     var app = angular.module("draw", []);
     app.filter('reverse', function() {
         return function(items) {
             return items.slice().reverse();
       };
     });
-    app.controller("list", function ($scope, $http) {
-        $scope.result = draw;
-        //$scope.items = data["e70e381a-29a9-4361-ba47-bce3b2e72348"]["data"];
+    app.controller("list", function ($scope, $http, $timeout) {
+        loadScript('src/draw.js?ver='+Math.random().toString(16), dataInit, {'elem': document.getElementById('init'), 'po': 'before'});
+        function dataInit() {
+            $timeout(function() {
+                if (typeof(draw) != "undefined") {
+                    console.log(draw);
+                    $scope.result = draw;
+                    //$scope.items = data["e70e381a-29a9-4361-ba47-bce3b2e72348"]["data"];
+                }
+            }, 0);
+        }
     });
 }
 
@@ -49,7 +67,6 @@ $(function() {
         hb_scroll_top_init();
         hb_to_top_click();
     };
-    var pathname = urlParser(window.location.href).pathname;
     var nav = document.createElement('nav');
     nav.setAttribute('class', 'navbar navbar-default navbar-fixed-top');
     $('body').prepend(nav);
@@ -88,29 +105,56 @@ function loadCSS(url){
     document.getElementsByTagName("head")[0].appendChild(cssLink);
 }
 
-function loadScript(url, callback) {
+function loadScript(url, callback, position) {
     var script = document.createElement("script");
     script.type = "text/javascript";
     if(typeof(callback) != "undefined"){
-        if (script.readyState) {
-            script.onreadystatechange = function () {
-                if (script.readyState == "loaded" || script.readyState == "complete") {
-                    script.onreadystatechange = null;
-                    callback();
-                }
-            };
-        } else {
-            script.onload = function () {
+        script.onload = script.onreadystatechange = function() {
+            if (!script.readyState || script.readyState == "loaded" || script.readyState == "complete") {
+                script.onreadystatechange = null;
                 callback();
-            };
+            }
         }
+
     }
     script.src = url;
-    document.body.appendChild(script);
+    if(typeof(position) != "undefined") {
+        var elem = position['elem'];
+        switch (position['po']) {
+            case "before":
+                elem.parentNode.insertBefore(script, elem);
+                break;
+            case "after":
+                insertAfter(script, elem);
+                break;
+            case "prepend":
+                elem.insertBefore(script, elem.firstChild);
+                break;
+            case "append":
+                elem.appendChild(script);
+                break;
+            default:
+                document.onload = document.onreadystatechange = function() {
+                    if (!document.readyState || document.readyState == "loaded" || document.readyState == "complete") {
+                        document.body.appendChild(script);
+                    }
+                }
+        }
+    } else {
+        document.onload = document.onreadystatechange = function() {
+            if (!document.readyState || document.readyState == "loaded" || document.readyState == "complete") {
+                document.body.appendChild(script);
+            }
+        }
+    }
 }
 
 function urlParser(url) {
     var el = document.createElement('a');
     el.href = url;
     return el;
+}
+
+function insertAfter(newNode, referenceNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 }
