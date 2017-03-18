@@ -2,6 +2,7 @@ loadCSS('src/style.css');
 
 var pathname = urlParser(window.location.href).pathname;
 var target = pathname.indexOf('/output.html') >= 0 ? 'output' : pathname.indexOf('/record.html') >= 0 ? 'record' : '';
+var timer;
 
 if (target == 'output') {
     var app = angular.module("data", []);
@@ -35,6 +36,7 @@ if (target == 'output') {
                     $anchorScroll.yOffset = $('body').offset().top;
                     $scope.gotoScroll(id);
                 }
+                refresh();
         }
         //$scope.items = data["e70e381a-29a9-4361-ba47-bce3b2e72348"]["data"];
     });
@@ -54,6 +56,7 @@ if (target == 'output') {
                     $scope.q = new Date().toJSON().slice(0,10);
                     $scope.result = draw;
                     //$scope.items = data["e70e381a-29a9-4361-ba47-bce3b2e72348"]["data"];
+                    refresh();
                 }
             }, 0);
         }
@@ -76,23 +79,17 @@ $(function() {
     $('body > nav').append('<div class="container-fluid">');
     $('body > nav > div.container-fluid').append('<div class="navbar-header"> <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse-1" aria-expanded="true"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> <a href="javascript:void(0);" onclick="window.location.reload();" class="navbar-brand">刷新</a><a id="refresh" class="navbar-brand" style="font-size:14px; padding-left:0;" href="javascript:void(0);">（10秒后刷新）</a> </div>').append('<div class="collapse navbar-collapse" id="bs-navbar-collapse-1"><ul class="nav navbar-nav"><li><a href="'+ (pathname.indexOf('/output.html') >= 0 ? 'record.html">抽奖记录' : 'output.html">测水记录') + '</a></li></ul></div>');
     
-    var timer = setTimeout(refresh, 10000);
-    $("#refresh").click(function(e){
+    $("#refresh").on('click', function(e){
         e.preventDefault();
         if (timer) {
-            clearTimeout(timer);
+            clearInterval(timer);
             $(this).text('（已关闭自动刷新）');
             timer = null;
         } else {
             $(this).text('（10秒后刷新）');
-            timer = setTimeout(refresh, 10000);
+            timer = refresh();
         }
     });
-
-    function refresh() {
-        timer = null;
-        document.location.reload(true);
-    }
 
 })
 
@@ -158,4 +155,19 @@ function urlParser(url) {
 
 function insertAfter(newNode, referenceNode) {
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+}
+
+function refresh() {
+    timer = null;
+    var time = 10;
+    timer = setInterval(function() {
+       time--;
+       if (time == 0) {
+           $('#refresh').text('（正在刷新 ...）');
+           clearInterval(timer);
+           document.location.reload(true);
+       } else {
+        $('#refresh').text('（' + time + '秒后刷新）');
+       }
+    }, 1000);
 }
