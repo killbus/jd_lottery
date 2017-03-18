@@ -22,6 +22,52 @@ try:
     input = raw_input
 except:
     pass
+class TimeoutExpired(Exception):
+    pass
+
+try:
+    import msvcrt
+    
+    def readInput(caption, default, timeout=10):
+        start_time = time.time()
+        sys.stdout.write('%s(%d秒自动跳过):' % (caption,timeout))
+        sys.stdout.flush()
+        input = ''
+        while True:
+            ini=msvcrt.kbhit()
+            try:
+                if ini:
+                    chr = msvcrt.getche()
+                    if ord(chr) == 13:  # enter_key
+                        break
+                    elif ord(chr) >= 32:
+                        input += chr.decode()
+            except Exception as e:
+                pass
+            if len(input) == 0 and time.time() - start_time > timeout:
+                break
+        print ('')  # needed to move to next line
+        if len(input) > 0:
+            return input+''
+        else:
+            return default
+except:
+    import signal
+    def alarm_handler(signum, frame):
+        raise TimeoutExpired
+
+    def readInput(caption, default, timeout=10):
+        # set signal handler
+        signal.signal(signal.SIGALRM, alarm_handler)
+        signal.alarm(timeout) # produce SIGALRM in `timeout` seconds
+
+        try:
+            return input('%s(%d秒自动跳过):' % (caption,timeout))
+        except:
+            print(default)
+            return default
+        finally:
+            signal.alarm(0) # cancel alarm
 
 def get_userdata(file_url):
     data=[]
@@ -160,7 +206,7 @@ class JDlogin(object):
         self.browser.quit()
 
 if __name__=="__main__":
-    x = input("Generate users' cookies automatically (Y/N) ? ")
+    x = readInput("Generate users' cookies automatically (Y/N) ? ", 'Y').upper()
     if x.upper() == 'N':
         username = input("plz enter username:")
         password = input("plz enter password:")
