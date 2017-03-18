@@ -104,6 +104,7 @@ class JDlogin(object):
             dcap["phantomjs.page.customHeaders.Accept-Language"] = "en-US,en;q=0.7,zh;q=0.3"
             dcap["phantomjs.page.customHeaders.connection"] = "keep-alive"
             self.browser = webdriver.PhantomJS('phantomjs', desired_capabilities=dcap)
+            self.browser.set_page_load_timeout(30)
         except Exception as e:
             pass
 
@@ -124,14 +125,34 @@ class JDlogin(object):
         while login_test is None:
             try:
                 authcode = ''
-                self.browser.get(self.login_url)
-                time.sleep(3)
+                page_loaded = None
+                while page_loaded is None:
+                    try:
+                        self.browser.get(self.login_url)
+                        time.sleep(3)
+                        page_loaded = 1
+                    except Exception as e:
+                        print(str(e))
+                        print(time.ctime())
+                        print("无法下载网页。1秒后重试...")
+                        time.sleep(1)
+                    
                 self.session.cookies.update( {c['name']:c['value'] for c in self.browser.get_cookies()} )
                 self.headers['Host'] = 'passport.jd.com'
                 acRequired = self.session.post(self.auth_url, headers=self.headers, data={'loginName':self.un}, allow_redirects=False).text #返回({"verifycode":true})或({"verifycode":false})
 
-                self.browser.get(self.login_url)
-                time.sleep(3)
+                page_loaded = None
+                while page_loaded is None:
+                    try:
+                        self.browser.get(self.login_url)
+                        time.sleep(3)
+                        page_loaded = 1
+                    except Exception as e:
+                        print(str(e))
+                        print(time.ctime())
+                        print("无法下载网页。1秒后重试...")
+                        time.sleep(1)
+
                 elem_login_tab = self.browser.find_element_by_xpath('//div[@class="login-tab login-tab-r"]')
                 elem_login_tab.click()
                 time.sleep(1)
