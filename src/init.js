@@ -36,7 +36,6 @@ if (target == 'output') {
                     $anchorScroll.yOffset = $('body').offset().top;
                     $scope.gotoScroll(id);
                 }
-                $('#refresh').text('（10秒后刷新）');
                 refresh();
         }
         //$scope.items = data["e70e381a-29a9-4361-ba47-bce3b2e72348"]["data"];
@@ -58,7 +57,6 @@ if (target == 'output') {
                     $scope.q = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toJSON().slice(0,10);
                     $scope.result = draw;
                     //$scope.items = data["e70e381a-29a9-4361-ba47-bce3b2e72348"]["data"];
-                    $('#refresh').text('（10秒后刷新）');
                     refresh();
                 }
             }, 0);
@@ -90,7 +88,7 @@ $(function() {
             timer = null;
         } else {
             $(this).text('（10秒后刷新）');
-            timer = refresh();
+            refresh();
         }
     });
 
@@ -116,7 +114,6 @@ function loadScript(url, callback, position) {
                 callback();
             }
         }
-
     }
     script.src = url;
     if(typeof(position) != "undefined") {
@@ -161,16 +158,16 @@ function insertAfter(newNode, referenceNode) {
 }
 
 function refresh() {
-    timer = null;
+    $('#refresh').text('（10秒后刷新）');
     var time = 10;
     timer = setInterval(function() {
        time--;
        if (time == 0) {
-           $('#refresh').text('（正在刷新 ...）');
+           $('#refresh').text('（正在刷新...）');
            clearInterval(timer);
            document.location.reload(true);
        } else {
-        $('#refresh').text('（' + time + '秒后刷新）');
+            $('#refresh').text('（' + time + '秒后刷新）');
        }
     }, 1000);
 }
