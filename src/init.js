@@ -53,7 +53,8 @@ if (target == 'output') {
             $timeout(function() {
                 if (typeof(draw) != "undefined") {
                     console.log(draw);
-                    $scope.q = new Date().toJSON().slice(0,10);
+					var date = new Date();
+                    $scope.q = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toJSON().slice(0,10);
                     $scope.result = draw;
                     //$scope.items = data["e70e381a-29a9-4361-ba47-bce3b2e72348"]["data"];
                     refresh();
