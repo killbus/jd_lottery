@@ -36,6 +36,7 @@ if (target == 'output') {
                     $anchorScroll.yOffset = $('body').offset().top;
                     $scope.gotoScroll(id);
                 }
+                $('#refresh').text('（10秒后刷新）');
                 refresh();
         }
         //$scope.items = data["e70e381a-29a9-4361-ba47-bce3b2e72348"]["data"];
@@ -53,10 +54,11 @@ if (target == 'output') {
             $timeout(function() {
                 if (typeof(draw) != "undefined") {
                     console.log(draw);
-					var date = new Date();
+                    var date = new Date();
                     $scope.q = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toJSON().slice(0,10);
                     $scope.result = draw;
                     //$scope.items = data["e70e381a-29a9-4361-ba47-bce3b2e72348"]["data"];
+                    $('#refresh').text('（10秒后刷新）');
                     refresh();
                 }
             }, 0);
@@ -159,7 +161,6 @@ function insertAfter(newNode, referenceNode) {
 }
 
 function refresh() {
-	$('#refresh').text('（10秒后刷新）');
     timer = null;
     var time = 10;
     timer = setInterval(function() {
