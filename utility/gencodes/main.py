@@ -38,7 +38,7 @@ def get_userdata(file_url, dlist=False):
         data=tuple(data)
         return data
 
-urls=get_userdata('lottery_urls.txt', 'urls_parent')
+urls=get_userdata('urls.txt', 'urls_parent')
 
 def extract(text, sub1, sub2):
     """
