@@ -280,26 +280,27 @@ class Product:
         #self.load_html()
 
     def load_html(self):
-        try:
-            headers={'Host':'ls-activity.jd.com',
-            'User-Agent':'Mozilla/5.0(WindowsNT6.3;WOW64;rv:47.0)Gecko/20100101Firefox/47.0',
-            'Accept':'*/*',
-            'Accept-Encoding':'gzip, deflate, sdch',
-            'Accept-Language':'zh-CN,zh;q=0.8,en;q=0.6',
-            'Referer':'http://www.jd.com/',
-            'Connection':'keep-alive'}
-            req=s.get(self.url,headers=headers,timeout=10)
-            if req.status_code != requests.codes.ok:
-                raise Exception(req.status_code)
-            self.page=req.text
-        except Exception as e:
-            print(str(e))
-            beep()
-            print(time.ctime())
-            print("无法下载网页。1秒后重试...")
-            time.sleep(1)
-            self.__init__(self.code_i)
-            self.load_html()
+        while True:
+            try:
+                headers={'Host':'ls-activity.jd.com',
+                'User-Agent':'Mozilla/5.0(WindowsNT6.3;WOW64;rv:47.0)Gecko/20100101Firefox/47.0',
+                'Accept':'*/*',
+                'Accept-Encoding':'gzip, deflate, sdch',
+                'Accept-Language':'zh-CN,zh;q=0.8,en;q=0.6',
+                'Referer':'http://www.jd.com/',
+                'Connection':'keep-alive'}
+                req=s.get(self.url,headers=headers,timeout=10)
+                if req.status_code != requests.codes.ok:
+                    raise Exception(req.status_code)
+                self.page=req.text
+                break
+            except Exception as e:
+                print(str(e))
+                beep()
+                print(time.ctime())
+                print("无法下载网页。1秒后重试...")
+                time.sleep(1)
+                pass
         self.html=self.page
         return self.html
 
