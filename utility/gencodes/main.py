@@ -87,11 +87,11 @@ try:
             content = content.decode(encoding, 'ignore').replace(u'\xa9', u'')
         else:
             print("Debug: Encoding type not found!")
-        match = re.search("\w{8,}-\w{4,}-\w{4,}-\w{4,}-\w{12,}", str(content))
+        match = re.search("\'(\w{8,}-\w{4,}-\w{4,}-\w{4,}-\w{12,})\'", str(content))
         if match is not None:
             soup = BeautifulSoup(content, 'lxml')
             title = ' '.join(' '.join(soup.title.string.split('-')[0:-1]).strip().split())
-            code = match.group(0)
+            code = match.group(1)
             #url_w = "http://ls-activity.jd.com/lotteryApi/getWinnerList.action?lotteryCode="+code+"&_=%d&callback="%(int(time.time()*1000))
             #winner = load_html(url_w)
             #winner = json.loads(str(load_html(url_w), 'utf-8'))
@@ -107,7 +107,7 @@ try:
             
             url_i = "http://ls-activity.jd.com/lotteryApi/getLotteryInfo.action?callback=&lotteryCode=%s&_=%d"%(code, int(time.time()*1000))
             prize = json.loads(str(load_html(url_i), 'utf-8'))
-            if 'data' in prize.keys() and len(prize['data']) > 0:
+            if 'data' in prize.keys() and prize['data'] is not None and len(prize['data']) > 0:
                 prize = prize['data']
                 etime = time.strptime(str(prize['endTime']),'%Y-%m-%d %H:%M:%S')
                 etime=datetime.datetime(etime[0],etime[1],etime[2],etime[3],etime[4],etime[5])
@@ -120,14 +120,19 @@ try:
                         record.write(code+'\n; '+url+' '+desc+'\n')
                 else:
                     vtime = "已过期"
+            else:
+                print('-'*50)
+                print('抽奖代码：'+code)
+                print('错误信息：' +str(prize))
+                print('链接地址：'+url)
+                continue
             print('-'*50)
             print('抽奖代码：'+code)
             print('奖品举例：'+awards)
             print('活动时间：'+vtime)
-            print('链接地址：'+url)
         else:
             print('-'*50)
-            print('没有找到抽奖代码，请检查链接。')
+            print('错误信息：没有找到抽奖代码，请检查链接。')
             print('链接地址：'+url)
                 
     seen = set()
