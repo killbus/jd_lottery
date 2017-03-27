@@ -224,10 +224,10 @@ class Settings:
                     self.GetFileList(newDir, fileList)  
         return fileList
 
-    def get_users(self):
+    def get_users(self, cookies):
         users = {}
         uid = 0
-        for e in COOKIES:
+        for e in cookies:
             uid += 1
             users[uid] = e
         return users
@@ -501,7 +501,7 @@ def Run():
              
     while(True):
         COOKIES = settings.GetFileList('cookies', [])
-        USERS = settings.get_users()
+        USERS = settings.get_users(COOKIES)
         #Format output
         #with codecs.open('output.html', 'w', 'utf-8') as html:
         #    html.write(u'<!DOCTYPE html>\n<html>\n    <head>\n        <meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>\n        <meta name="format-detection" content="telephone=no" />\n        <meta http-equiv="refresh" content="10">\n        <title>京东抽奖测水</title>\n        <link href="src/bootstrap.min.css" rel="stylesheet" type="text/css" />\n        <script type="text/javascript" src="src/jquery-3.1.0.min.js"></script>\n        <script type="text/javascript" src="src/data.js"></script>\n        <script type="text/javascript" src="src/angular.min.js"></script>\n        <script type="text/javascript" src="src/init.js"></script>\n    </head>\n    <body>\n        <div ng-app="data" class="container">\n            <div ng-controller="list" class="table-responsive">\n                <div ng-repeat="(code, res) in result">\n                <table class="table table-striped">\n                    <caption>用户列表:  {{code}}</caption>\n                    <tr>\n                        <th>优惠券名称</th>\n                        <th>用户</th>\n                        <th>时间</th>\n                    </tr>\n                    <tr ng-repeat="item in res track by $index">\n                        <td>{{item.prizeName}}</td>\n                        <td>{{item.userPin}}</td>\n                        <td>{{item.winDate}}</td>\n                     </tr>\n                </table>\n                </div>\n            </div>\n        </div>')
