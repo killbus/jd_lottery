@@ -96,17 +96,38 @@ class JDlogin(object):
         self.home_url = "http://home.jd.com/"
         self.un = un
         self.pw = pw
+
+        dcap = dict(webdriver.DesiredCapabilities.PHANTOMJS)
+        dcap["phantomjs.page.settings.userAgent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.98 Safari/537.36"
+        dcap["phantomjs.page.settings.clearMemoryCaches"] = True
+        dcap["phantomjs.page.customHeaders.accept"] = "*/*"
+        dcap["phantomjs.page.customHeaders.Accept-Language"] = "en-US,en;q=0.7,zh;q=0.3"
+        dcap["phantomjs.page.customHeaders.connection"] = "keep-alive"
         try:
-            dcap = dict(webdriver.DesiredCapabilities.PHANTOMJS)
-            dcap["phantomjs.page.settings.userAgent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.98 Safari/537.36"
-            dcap["phantomjs.page.settings.clearMemoryCaches"] = True
-            dcap["phantomjs.page.customHeaders.accept"] = "*/*"
-            dcap["phantomjs.page.customHeaders.Accept-Language"] = "en-US,en;q=0.7,zh;q=0.3"
-            dcap["phantomjs.page.customHeaders.connection"] = "keep-alive"
             self.browser = webdriver.PhantomJS('phantomjs', desired_capabilities=dcap)
             self.browser.set_page_load_timeout(30)
         except Exception as e:
-            pass
+            print(e)
+
+    def load_html(self, url):
+        while True:
+            if hasattr(self, 'browser'):
+                try:
+                    self.browser.get(url)
+                    time.sleep(3)
+                    return {'code': 'ok'}
+                except Exception as e:
+                    print(str(e))
+                    print(time.ctime())
+                    print("无法下载网页。1秒后重试...")
+                    time.sleep(1)
+            else:
+                try:
+                    self.browser = webdriver.PhantomJS('phantomjs', desired_capabilities=dcap)
+                    self.browser.set_page_load_timeout(30)
+                except Exception as e: 
+                    return {'code': 'error', 'msg': str(e)}
+
 
     def cookie_update(self):
         print("\nAuto handle cookie in file, Mozilla Format ...");
@@ -125,34 +146,18 @@ class JDlogin(object):
         while login_test is None:
             try:
                 authcode = ''
-                page_loaded = None
-                while page_loaded is None:
-                    try:
-                        self.browser.get(self.login_url)
-                        time.sleep(3)
-                        page_loaded = 1
-                    except Exception as e:
-                        print(str(e))
-                        print(time.ctime())
-                        print("无法下载网页。1秒后重试...")
-                        time.sleep(1)
-                    
+                resp = self.load_html(self.login_url)
+                if resp['code'] == 'error':
+                    print(resp['msg'])
+                    break
                 self.session.cookies.update( {c['name']:c['value'] for c in self.browser.get_cookies()} )
                 self.headers['Host'] = 'passport.jd.com'
                 acRequired = self.session.post(self.auth_url, headers=self.headers, data={'loginName':self.un}, allow_redirects=False).text #返回({"verifycode":true})或({"verifycode":false})
 
-                page_loaded = None
-                while page_loaded is None:
-                    try:
-                        self.browser.get(self.login_url)
-                        time.sleep(3)
-                        page_loaded = 1
-                    except Exception as e:
-                        print(str(e))
-                        print(time.ctime())
-                        print("无法下载网页。1秒后重试...")
-                        time.sleep(1)
-
+                self.load_html(self.login_url)
+                if resp['code'] == 'error':
+                    print(resp['msg'])
+                    break
                 elem_login_tab = self.browser.find_element_by_xpath('//div[@class="login-tab login-tab-r"]')
                 elem_login_tab.click()
                 time.sleep(1)
@@ -212,8 +217,8 @@ class JDlogin(object):
                     else:
                         error_msg = self.browser.find_element_by_xpath('//div[@class="msg-error"]').text
                         print('ERROR: '+error_msg)
-                        if '密码错误' in error_msg or '账户名不存在' in error_msg:
-                            break
+                        #if '密码错误' in error_msg or '账户名不存在' in error_msg:
+                        break
                     time.sleep(1)
                 else:
                     print('LOGIN SUCCESS!')
@@ -223,8 +228,11 @@ class JDlogin(object):
                 print(e)
                 pass
 
-        self.browser.service.process.send_signal(signal.SIGTERM)
-        self.browser.quit()
+        try:
+            self.browser.service.process.send_signal(signal.SIGTERM)
+            self.browser.quit()
+        except Exception as e:
+            print(e)
 
 if __name__=="__main__":
     x = readInput("Generate users' cookies automatically (Y/N) ? ", 'Y').upper()
