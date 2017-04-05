@@ -4,6 +4,7 @@
 import re
 import json
 import os,sys
+import signal
 import codecs,random
 import time, datetime
 import urllib.request
@@ -90,6 +91,27 @@ try:
         else:
             print("Debug: Encoding type not found!")
         match = re.search("\'(\w{8,}-\w{4,}-\w{4,}-\w{4,}-\w{12,})\'", str(content))
+        if match is None:
+            try:
+                from selenium import webdriver
+                dcap = dict(webdriver.DesiredCapabilities.PHANTOMJS)
+                dcap["phantomjs.page.settings.userAgent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.98 Safari/537.36"
+                dcap["phantomjs.page.settings.clearMemoryCaches"] = True
+                dcap["phantomjs.page.customHeaders.accept"] = "*/*"
+                dcap["phantomjs.page.customHeaders.Accept-Language"] = "en-US,en;q=0.7,zh;q=0.3"
+                dcap["phantomjs.page.customHeaders.connection"] = "keep-alive"
+
+                browser = webdriver.PhantomJS('phantomjs', desired_capabilities=dcap)
+                browser.set_page_load_timeout(30)
+                
+                browser.get(url)
+                browser.execute_script("var q = document.body.scrollTop = $('div[module-name=\"m-lottery\"]')[0].offsetTop")
+                time.sleep(3)
+                content = browser.page_source
+                match = re.search("\'(\w{8,}-\w{4,}-\w{4,}-\w{4,}-\w{12,})\'", content)
+            except Exception as e:
+                print(e)
+                
         if match is not None:
             soup = BeautifulSoup(content, 'lxml')
             title = ' '.join(' '.join(soup.title.string.split('-')[0:-1]).strip().split())
@@ -136,7 +158,13 @@ try:
             print('-'*50)
             print('错误信息：没有找到抽奖代码，请检查链接。')
             print('链接地址：'+url)
-                
+
+    try:
+        browser.service.process.send_signal(signal.SIGTERM)
+        browser.quit()
+    except Exception as e:
+        print(e)
+        
     seen = set()
     with codecs.open('record.txt', 'w', 'utf-8') as record:
         with codecs.open(tmp_record, 'r', 'utf-8') as trecord:
