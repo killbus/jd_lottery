@@ -7,6 +7,7 @@ import os,sys
 import codecs,random
 import time, datetime
 import urllib.request
+import chardet
 from bs4 import BeautifulSoup
 
 try:
@@ -77,7 +78,8 @@ tmp_record = script_name+'@'+str(os.getpid())+'.txt'
 try:
     for url in urls:
         content = load_html(url)
-        encoding = extract(str(content).lower(), 'charset=', '"')
+        #encoding = extract(str(content).lower(), 'charset=', '"')
+        encoding = chardet.detect(content)['encoding']
         #print('-'*50)
         #print( "Encoding type = %s" % encoding )
         #print('-'*50)
