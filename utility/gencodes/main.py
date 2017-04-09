@@ -8,6 +8,7 @@ import signal
 import codecs,random
 import time, datetime
 import urllib.request
+from urllib.parse import urlparse
 import chardet
 from bs4 import BeautifulSoup
 
@@ -91,7 +92,7 @@ try:
         else:
             print("Debug: Encoding type not found!")
         match = re.search("\'(\w{8,}-\w{4,}-\w{4,}-\w{4,}-\w{12,})\'", str(content))
-        if match is None:
+        if match is None and urlparse(url).path.startswith('/m/'):
             try:
                 from selenium import webdriver
                 dcap = dict(webdriver.DesiredCapabilities.PHANTOMJS)
