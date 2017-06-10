@@ -217,7 +217,7 @@ class JDlogin(object):
                             while True:
                                 elem_code = self.browser.find_element_by_xpath('//*[@id="code"]')
                                 elem_code.clear()
-                                code = raw_input("plz input the verify code")
+                                code = input("plz input the verify code")
                                 elem_code.send_keys(code)
                                 self.browser.find_element_by_xpath('//*[@id="submitBtn"]').click()
                                 time.sleep(1)
