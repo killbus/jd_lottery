@@ -11,6 +11,9 @@ import signal
 import requests
 import urllib, http.cookiejar
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from PIL import Image
 
 try:
@@ -217,18 +220,17 @@ class JDlogin(object):
                             while True:
                                 elem_code = self.browser.find_element_by_xpath('//*[@id="code"]')
                                 elem_code.clear()
-                                code = input("plz input the verify code")
+                                code = input("plz input the verify code: ")
                                 elem_code.send_keys(code)
                                 self.browser.find_element_by_xpath('//*[@id="submitBtn"]').click()
                                 time.sleep(1)
-                                if 'dangerousVerify' in self.browser.current_url:
-                                    break
-                                else:
-                                    alert = Alert(self.browser)
-                                    time.sleep(1)
+                                try:
+                                    WebDriverWait(self.browser, 3).until(EC.alert_is_present())
+                                    alert = self.browser.switch_to_alert()
                                     print('ERROR: '+alert.text)
-                                    alert.dismiss()
-                                    time.sleep(1)
+                                    alert.accept()
+                                except TimeoutException:
+                                    break
                             
                         else:
                             break
