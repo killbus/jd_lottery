@@ -213,7 +213,25 @@ class JDlogin(object):
                     if 'dangerousVerify' in self.browser.current_url:
                         error_msg = self.browser.find_element_by_xpath('//div[@class="tip-box"]').text
                         print('ERROR: '+error_msg)
-                        break
+                        if x == 'N':
+                            while True:
+                                elem_code = self.browser.find_element_by_xpath('//*[@id="code"]')
+                                elem_code.clear()
+                                code = raw_input("plz input the verify code")
+                                elem_code.send_keys(code)
+                                self.browser.find_element_by_xpath('//*[@id="submitBtn"]').click()
+                                time.sleep(1)
+                                if 'dangerousVerify' in self.browser.current_url:
+                                    break
+                                else:
+                                    alert = Alert(self.browser)
+                                    time.sleep(1)
+                                    print('ERROR: '+alert.text)
+                                    alert.dismiss()
+                                    time.sleep(1)
+                            
+                        else:
+                            break
                     else:
                         error_msg = self.browser.find_element_by_xpath('//div[@class="msg-error"]').text
                         print('ERROR: '+error_msg)
