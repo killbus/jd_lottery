@@ -285,7 +285,7 @@ class Product:
                 'Accept-Encoding':'gzip, deflate, sdch',
                 'Accept-Language':'zh-CN,zh;q=0.8,en;q=0.6',
                 'Referer':'http://www.jd.com/',
-                'Connection':'keep-alive'}
+                'Connection':'close'}
                 req=s.get(self.url,headers=headers,timeout=10)
                 if req.status_code != requests.codes.ok:
                     raise Exception(req.status_code)
@@ -415,7 +415,7 @@ def get_page(user):
     'Accept-Language':'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
     'X-Requested-With':'XMLHttpRequest',
     'Referer':'http://www.jd.com',
-    'Connection':'keep-alive'}
+    'Connection':'close'}
     #opener.addheaders = [('Host', 'l-activity.jd.com'), ('User-Agent', 'Mozilla/5.0(WindowsNT6.3;WOW64;rv:47.0)Gecko/20100101Firefox/47.0'), ('Accept', '*/*'), ('X-Requested-With', 'XMLHttpRequest'), ('Referer', 'http://www.jd.com'), ('Connection', 'keep-alive')]
     user = user.replace('\\','/').split('/')
     user = user[1].split('.')
